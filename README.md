@@ -39,3 +39,9 @@ Duration:
 Prompt:
 Seamlessly continue the video.
 ```
+
+### config.txt - Template
+
+```
+Next: 1
+```
