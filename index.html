@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GI Extension Studio</title>
+    <style>
+        :root {
+            --bg-color: #1e1e2e;
+            --panel-bg: #2d2d3a;
+            --border-color: #444;
+            --accent-color: #667eea;
+            --accent-hover: #5a67d8;
+            --text-color: #eee;
+            --text-muted: #888;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 32px;
+        }
+
+        .header .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        button.primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        button.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .column:first-child {
+            flex: 2; /* Make the left column wider */
+        }
+
+        .column-header {
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .column-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        /* Video Section */
+        .video-category {
+            margin-bottom: 30px;
+        }
+
+        .video-category h3 {
+            margin: 0 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-color);
+            font-size: 18px;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .video-card {
+            background: #1a1a24;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .video-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .video-info {
+            margin-top: 10px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .video-filename {
+            font-family: monospace;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ddd;
+        }
+
+        .video-duration {
+            color: var(--text-muted);
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        .video-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .video-controls button {
+            flex: 1;
+            background: #3a3a4a;
+            color: #eee;
+            border: none;
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .video-controls button:hover {
+            background: #4a4a5a;
+        }
+
+        /* Prompt Section */
+        #promptContent {
+            margin: 0;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #ccc;
+        }
+
+        .status-indicator {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h1>🎮 GI Extension Studio</h1>
+                <div class="subtitle" id="folderSubtitle">Select project folder to load videos and watch prompts.md</div>
+                <button class="primary" id="openBtn" style="margin-top: 10px;">📁 Open Project Folder</button>
+            </div>
+            <div class="config-panel" style="display: none; background: var(--panel-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center;">
+                <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 5px;">config.txt (Next Number)</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <span style="font-size: 24px; font-weight: bold; color: var(--accent-color);">Next:</span>
+                    <input type="number" id="configNumberInput" min="1" style="font-size: 24px; width: 80px; padding: 5px; outline: none; border: 1px solid var(--border-color); background: #1a1a24; color: var(--text-color); border-radius: 4px; font-weight: bold; text-align: center;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left Column: Video Section -->
+        <div class="column">
+            <div class="column-header">
+                <span>🎥 Videos</span>
+                <span class="status-indicator" id="videoStatus">Not loaded</span>
+            </div>
+            <div class="column-content" id="videoContainer">
+                <div class="video-category" id="cat-initial">
+                    <h3>Initial</h3>
+                    <div class="video-grid"></div>
+                </div>
+                <div class="video-category" id="cat-stitched">
+                    <h3>Stitched</h3>
+                    <div class="video-grid"></div>
+                </div>
+                <div class="video-category" id="cat-segments">
+                    <h3>Segments</h3>
+                    <div class="video-grid"></div>
+                </div>
+                <div class="video-category" id="cat-raw">
+                    <h3>Raw</h3>
+                    <div class="video-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Prompt Section -->
+        <div class="column">
+            <div class="column-header">
+                <span>📝 prompts.md</span>
+                <span class="status-indicator" id="promptStatus">Not loaded</span>
+            </div>
+            <div class="column-content">
+                <pre id="promptContent">Waiting for project folder...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let folderHandle = null;
+        let promptFileHandle = null;
+        let configHandle = null;
+        let watchInterval = null;
+        let configWatchInterval = null;
+        let folderScanInterval = null;
+        
+        let fileCache = new Map();
+
+        const videoCategories = {
+            'initial': 'input',
+            'stitched': 'stitched',
+            'segments': 'segments',
+            'raw': 'raw'
+        };
+
+        const DOM = {
+            openBtn: document.getElementById('openBtn'),
+            promptContent: document.getElementById('promptContent'),
+            promptStatus: document.getElementById('promptStatus'),
+            videoStatus: document.getElementById('videoStatus'),
+            folderSubtitle: document.getElementById('folderSubtitle'),
+            configPanel: document.querySelector('.config-panel'),
+            configInput: document.getElementById('configNumberInput')
+        };
+
+        DOM.openBtn.addEventListener('click', async () => {
+            try {
+                folderHandle = await window.showDirectoryPicker();
+                DOM.videoStatus.textContent = "Scanning...";
+                DOM.folderSubtitle.innerHTML = "Selected folder: <strong>" + folderHandle.name + "</strong>";
+                
+                fileCache.clear();
+                
+                Object.keys(videoCategories).forEach(cat => {
+                    document.querySelector("#cat-" + cat + " .video-grid").innerHTML = '';
+                });
+
+                await scanFolders();
+                watchPromptFile();
+                watchConfigFile();
+                
+                if (folderScanInterval) clearInterval(folderScanInterval);
+                folderScanInterval = setInterval(scanFolders, 2000);
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error(err);
+                    alert("Error opening directory: " + err.message);
+                }
+            }
+        });
+
+        async function scanFolders() {
+            if (!folderHandle) return;
+            
+            let foundAny = false;
+            const currentFiles = new Set();
+
+            for (const [catName, folderName] of Object.entries(videoCategories)) {
+                try {
+                    const subFolder = await folderHandle.getDirectoryHandle(folderName);
+                    for await (const entry of subFolder.values()) {
+                        if (entry.kind === 'file' && entry.name.match(/\.(mp4|webm|mov|mkv)$/i)) {
+                            const pathKey = folderName + '/' + entry.name;
+                            currentFiles.add(pathKey);
+                            const file = await entry.getFile();
+                            
+                            const cached = fileCache.get(pathKey);
+                            if (!cached || cached.lastModified < file.lastModified) {
+                                const objectUrl = URL.createObjectURL(file);
+                                const newCard = createVideoCard(file, objectUrl);
+                                
+                                if (cached) {
+                                    URL.revokeObjectURL(cached.objectUrl);
+                                    cached.card.replaceWith(newCard);
+                                } else {
+                                    const container = document.querySelector("#cat-" + catName + " .video-grid");
+                                    if (container) container.appendChild(newCard);
+                                }
+                                
+                                fileCache.set(pathKey, {
+                                    lastModified: file.lastModified,
+                                    card: newCard,
+                                    objectUrl: objectUrl
+                                });
+                            }
+                            foundAny = true;
+                        }
+                    }
+                } catch (e) {
+                    // Folder might not exist yet, ignore
+                }
+            }
+            
+            // Cleanup deleted or renamed video files
+            for (const [pathKey, cachedData] of fileCache.entries()) {
+                if (!currentFiles.has(pathKey)) {
+                    if (cachedData.card && cachedData.card.parentNode) {
+                        cachedData.card.parentNode.removeChild(cachedData.card);
+                    }
+                    URL.revokeObjectURL(cachedData.objectUrl);
+                    fileCache.delete(pathKey);
+                }
+            }
+            
+            DOM.videoStatus.textContent = foundAny ? "Watching videos..." : "No videos found in subfolders.";
+        }
+
+        function createVideoCard(file, objectUrl) {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'video-wrapper';
+            
+            const video = document.createElement('video');
+            video.src = objectUrl;
+            video.preload = 'metadata';
+            
+            wrapper.appendChild(video);
+            
+            const info = document.createElement('div');
+            info.className = 'video-info';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'video-filename';
+            nameSpan.textContent = file.name;
+            nameSpan.title = file.name;
+            
+            const durationSpan = document.createElement('span');
+            durationSpan.className = 'video-duration';
+            durationSpan.textContent = '--:--';
+            
+            video.addEventListener('loadedmetadata', () => {
+                const totalSeconds = Math.floor(video.duration);
+                const m = Math.floor(totalSeconds / 60);
+                const s = totalSeconds % 60;
+                durationSpan.textContent = m + ':' + s.toString().padStart(2, '0');
+            });
+
+            info.appendChild(nameSpan);
+            info.appendChild(durationSpan);
+            
+            const controls = document.createElement('div');
+            controls.className = 'video-controls';
+            
+            const playBtn = document.createElement('button');
+            playBtn.textContent = '▶ Play';
+            
+            const fsBtn = document.createElement('button');
+            fsBtn.textContent = '⛶ Fullscreen';
+            
+            playBtn.addEventListener('click', () => {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            });
+            
+            video.addEventListener('play', () => playBtn.textContent = '⏸ Pause');
+            video.addEventListener('pause', () => playBtn.textContent = '▶ Play');
+            
+            fsBtn.addEventListener('click', () => {
+                if (video.requestFullscreen) {
+                    video.requestFullscreen();
+                }
+            });
+
+            controls.appendChild(playBtn);
+            controls.appendChild(fsBtn);
+            
+            card.appendChild(wrapper);
+            card.appendChild(info);
+            card.appendChild(controls);
+            
+            return card;
+        }
+
+        async function watchPromptFile() {
+            if (watchInterval) clearInterval(watchInterval);
+            
+            let lastModified = 0;
+            
+            const loadPrompt = async () => {
+                if (!folderHandle) return;
+                try {
+                    promptFileHandle = await folderHandle.getFileHandle('prompts.md');
+                    const file = await promptFileHandle.getFile();
+                    if (file.lastModified !== lastModified) {
+                        lastModified = file.lastModified;
+                        const text = await file.text();
+                        DOM.promptContent.textContent = text;
+                        DOM.promptStatus.textContent = "Last updated: " + new Date().toLocaleTimeString();
+                    }
+                } catch (e) {
+                    DOM.promptContent.textContent = "prompts.md not found or deleted.";
+                    DOM.promptStatus.textContent = "File not found";
+                    lastModified = 0;
+                }
+            };
+            
+            await loadPrompt();
+            watchInterval = setInterval(loadPrompt, 1000);
+        }
+
+        async function watchConfigFile() {
+            if (configWatchInterval) clearInterval(configWatchInterval);
+            DOM.configPanel.style.display = 'block';
+            let lastModified = 0;
+            let currentNumber = null;
+
+            const loadConfig = async () => {
+                try {
+                    // Always try to get or create the handle since it might be added externally
+                    configHandle = await folderHandle.getFileHandle('config.txt', { create: false });
+                    const file = await configHandle.getFile();
+                    if (file.lastModified !== lastModified) {
+                        lastModified = file.lastModified;
+                        const text = await file.text();
+                        // Parse "Next: 1"
+                        const match = text.match(/Next:\s*(\d+)/i);
+                        if (match && match[1]) {
+                            const newNumber = parseInt(match[1]);
+                            if (newNumber !== currentNumber) {
+                                currentNumber = newNumber;
+                                if (document.activeElement !== DOM.configInput) {
+                                    DOM.configInput.value = currentNumber;
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // File might not exist yet or was deleted
+                    if (document.activeElement !== DOM.configInput) {
+                        DOM.configInput.value = '';
+                    }
+                    lastModified = 0;
+                    currentNumber = null;
+                }
+            };
+
+            // Setup direct editing 
+            DOM.configInput.addEventListener('change', async (e) => {
+                try {
+                    const newVal = parseInt(DOM.configInput.value);
+                    if (isNaN(newVal)) return;
+                    
+                    configHandle = await folderHandle.getFileHandle('config.txt', { create: true });
+                    const writable = await configHandle.createWritable();
+                    await writable.write(`Next: ${newVal}`);
+                    await writable.close();
+                    
+                    const file = await configHandle.getFile();
+                    lastModified = file.lastModified;
+                    currentNumber = newVal;
+                } catch (err) {
+                    console.error("Error writing config.txt:", err);
+                    alert("Could not save config.txt: " + err.message);
+                }
+            });
+
+            await loadConfig();
+            configWatchInterval = setInterval(loadConfig, 1000);
+        }
+    </script>
+</body>
+</html>
