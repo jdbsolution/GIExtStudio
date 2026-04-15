@@ -15,7 +15,9 @@ GI Extension Studio is a streamlined, human-in-the-loop workflow that extends Gr
 
 ## Demo Video Created with GI Extension Studio
 
-[Gone in 60 Seconds](https://x.com/DavidLi36143625/status/2043661099464331638?s=20)
+**Gone in 60 Seconds**
+
+[![Demo video thumbnail](demo.jpg)](https://x.com/DavidLi36143625/status/2043661099464331638?s=20)
 
 ## Links
 
