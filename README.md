@@ -1,5 +1,3 @@
-**⚠️ NOTICE: This document is still under development.**  
-
 # GI Extension Studio
 GI Extension Studio is a streamlined, human-in-the-loop workflow that extends Grok Imagine videos beyond the standard 30-second limit by repeatedly applying a "Split and Stitch" method together with the Grok Imagine API, Node.js CLI tools, and a local web UI for reviewing and managing video segments.
 
@@ -24,7 +22,7 @@ GI Extension Studio is a streamlined, human-in-the-loop workflow that extends Gr
 For a complete understanding of the workflow, please read these guides first:
 
 - [User Guide on X](https://x.com/DavidLi36143625/status/2043669773142434163)
-- [Setup Guide on Medium](https://medium.com/@davidlfliang)
+- [Setup Guide on Medium](https://medium.com/@davidlfliang/guide-setting-up-gi-extension-studio-for-grok-imagine-video-4b0f36bc119d)
 
 [Follow me on X](https://x.com/DavidLi36143625) for more video examples.
 
